@@ -3,7 +3,7 @@ package com.pandy.spark.wordcount
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-object WordCount01 {
+object WordCount02 {
     def main(args: Array[String]): Unit = {
 
         // Application
@@ -17,12 +17,23 @@ object WordCount01 {
         // split line 扁平化
         val words: RDD[String] = lines.flatMap(_.split(" "))
 
-        // group word
-        val wordGroup: RDD[(String, Iterable[String])] = words.groupBy(word => word)
+        val wordToOne = words.map(
+            word => (word, 1)
+        )
+
+        val wordGroup: RDD[(String, Iterable[(String, Int)])] = wordToOne.groupBy(
+            t => t._1
+        )
 
         val wordToCount: RDD[(String, Int)] = wordGroup.map {
-            case (x, y) =>
-                (x, y.size)
+            case (word, list) => {
+                // tuple (word, wordcount)
+                list.reduce(
+                    (t1, t2) => {
+                        (t1._1, t1._2 + t2._2)
+                    }
+                )
+            }
         }
 
         wordToCount.foreach(println)

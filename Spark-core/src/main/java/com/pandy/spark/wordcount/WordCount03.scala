@@ -3,7 +3,7 @@ package com.pandy.spark.wordcount
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-object WordCount01 {
+object WordCount03 {
     def main(args: Array[String]): Unit = {
 
         // Application
@@ -17,13 +17,12 @@ object WordCount01 {
         // split line 扁平化
         val words: RDD[String] = lines.flatMap(_.split(" "))
 
-        // group word
-        val wordGroup: RDD[(String, Iterable[String])] = words.groupBy(word => word)
+        val wordToOne = words.map(
+            word => (word, 1)
+        )
 
-        val wordToCount: RDD[(String, Int)] = wordGroup.map {
-            case (x, y) =>
-                (x, y.size)
-        }
+        // reduceByKey 相同的key可以对value进行reduce聚合
+        val wordToCount: RDD[(String, Int)] = wordToOne.reduceByKey(_ + _)
 
         wordToCount.foreach(println)
 
