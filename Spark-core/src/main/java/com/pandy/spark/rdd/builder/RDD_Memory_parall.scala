@@ -3,10 +3,11 @@ package com.pandy.spark.rdd.builder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
-object RDD_File {
+object RDD_Memory_parall {
 
     /**
-     * 从文件中构建rdd
+     * 从内存中构建rdd
+     * rdd并行度&分区
      * @param args
      */
 
@@ -16,12 +17,13 @@ object RDD_File {
 
         val sc = new SparkContext(sparkConf)
 
-        // 创建RDD path默认以当前环境的根路径为基准 可以写绝对路径 也可以相对路径
-        // 也能够通配符 还能是分布式存储系统路径
-        // text file以行为单位
-        val rdd: RDD[String] = sc.textFile("data/1.txt")
+        // makeRDD 第二个参数 指定分区
+        val rdd: RDD[Int] = sc.makeRDD(
+            List(1,2,3,4), 2
+        )
 
-        rdd.collect().foreach(println)
+        // 将处理的数据保存成分区文件
+        rdd.saveAsTextFile("output")
 
         sc.stop()
     }
