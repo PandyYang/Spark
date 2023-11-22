@@ -1,7 +1,5 @@
 package com.pandy;
 
-import com.twitter.bijection.Injection;
-import com.twitter.bijection.avro.GenericAvroCodecs;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.spark.streaming.Durations;
@@ -46,12 +44,14 @@ public class SparkAvroConsumer {
             rdd.foreach(avroRecord -> {
                 Schema.Parser parser = new Schema.Parser();
                 Schema schema = parser.parse(SimpleAvroProducer.USER_SCHEMA);
-                Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(schema);
-                GenericRecord record = recordInjection.invert(avroRecord.value().getBytes(StandardCharsets.UTF_8)).get();
+//                Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(schema);
+//                GenericRecord record = recordInjection.invert(avroRecord.value().getBytes(StandardCharsets.UTF_8)).get();
 
-                System.out.println("str1= " + record.get("str1")
-                        + ", str2= " + record.get("str2")
-                        + ", int1=" + record.get("int1"));
+                GenericRecord deserializedUser = AvroDSerialization.deserializeAvroRecord(avroRecord.value().getBytes(StandardCharsets.UTF_8), schema);
+
+                System.out.println("str1= " + deserializedUser.get("str1")
+                        + ", str2= " + deserializedUser.get("str2")
+                        + ", int1=" + deserializedUser.get("int1"));
             });
         });
 
