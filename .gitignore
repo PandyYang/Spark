@@ -10,3 +10,5 @@ gen
 # Project exclude paths
 /Spark-core/target/
 *.txt
+*.class
+/target/
